@@ -171,12 +171,14 @@ windowsTest(
           'lavfi',
           '-i',
           item.hdr
-            ? "nullsrc=s=1024x180:r=25:d=2,format=yuv420p10le,geq=lum='64+876*X/(W-1)':cb=512:cr=512"
+            ? `nullsrc=s=1024x180:r=25:d=2,format=yuv420p10le,geq=lum=${item.hdr === 'smpte2084' ? '1023' : '64+876'}*X/(W-1):cb=512:cr=512`
             : 'testsrc2=s=320x180:r=25:d=2',
           '-f',
           'lavfi',
           '-i',
           'sine=frequency=440:sample_rate=48000:duration=2',
+          '-vf',
+          `setparams=range=${item.hdr === 'smpte2084' ? 'full' : 'limited'}:color_primaries=${item.hdr ? 'bt2020' : 'bt709'}:color_trc=${item.hdr ?? 'bt709'}:colorspace=${item.hdr ? 'bt2020nc' : 'bt709'}`,
           '-c:v',
           item.codec,
           '-preset',
@@ -216,14 +218,20 @@ windowsTest(
           path,
           new AbortController().signal,
         );
+        const fixtureVideo = fixture.streams.find(
+          (stream) => stream.codec_type === 'video',
+        );
         t.diagnostic(
           JSON.stringify({
             fixture: item.name,
-            video: fixture.streams.find(
-              (stream) => stream.codec_type === 'video',
-            ),
+            video: fixtureVideo,
           }),
         );
+        assert.equal(
+          fixtureVideo?.color_primaries,
+          item.hdr ? 'bt2020' : 'bt709',
+        );
+        assert.equal(fixtureVideo?.color_transfer, item.hdr ?? 'bt709');
         const fixtureAsset = describeVideo(
           fixture,
           '00000000-0000-4000-8000-000000000001',
