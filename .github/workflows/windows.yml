@@ -1,0 +1,77 @@
+name: Windows x64 preview
+
+on:
+  push:
+    branches: [main, feat/windows-x64]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-2022
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          path-type: inherit
+          update: false
+          install: >-
+            make curl tar diffutils
+            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-ucrt-x86_64-cmake
+            mingw-w64-ucrt-x86_64-ninja
+            mingw-w64-ucrt-x86_64-pkgconf
+      - uses: actions/cache@v4
+        id: native
+        with:
+          path: resources/media-tools/win32-x64
+          key: windows-cpu-v1-${{ hashFiles('scripts/build-windows-media.sh', 'resources/media-tools/win32-x64/sources.json', 'resources/media-tools/win32-x64/media-guardian.c') }}
+      - name: Build source-pinned CPU media workers
+        if: steps.native.outputs.cache-hit != 'true'
+        shell: msys2 {0}
+        run: bash scripts/build-windows-media.sh
+      - name: Pin Windows resources and audit native DLL dependencies
+        shell: msys2 {0}
+        run: node scripts/prepare-windows-resources.mts
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+      - run: npm run make:windows
+      - run: npm run test:windows
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Video-Text-Editor-windows-x64
+          path: out/make/zip/win32/x64/*.zip
+          if-no-files-found: error
+  verify-portable:
+    needs: build
+    runs-on: windows-2025
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          name: Video-Text-Editor-windows-x64
+          path: out/download
+      - name: Extract the actual portable ZIP
+        shell: pwsh
+        run: |
+          $archive = Get-ChildItem out/download/*.zip
+          Expand-Archive -LiteralPath $archive.FullName -DestinationPath out/portable
+          "VIDEO_EDITOR_WINDOWS_APP=$((Resolve-Path out/portable).Path)" >> $env:GITHUB_ENV
+      - run: npm run test:windows

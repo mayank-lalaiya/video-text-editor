@@ -8,8 +8,8 @@ Copyright notices and full license texts accompany each family in fonts/.
 The emoji license here applies to the font software, not unrelated emoji artwork.
 Per-file source URLs and SHA-256 pins are in manifest.json.
 
-Bundled media workers
----------------------
+Bundled macOS media workers
+--------------------------
 FFmpeg and ffprobe 9.0.2-video-text-editor-m2 were built from unmodified upstream
 source without GPL/nonfree components or network support. They use macOS system
 frameworks/libraries, including system zlib for PNG support; no separate zlib
@@ -17,6 +17,19 @@ library is redistributed. These executables are LGPL-2.1-or-later, not the licen
 of an npm wrapper.
 See media-tools/darwin-arm64/ for the full license, corresponding source archive,
 build instructions, copyright notices and explicit capability limitations.
+
+Bundled Windows media workers
+-----------------------------
+The separately built Windows x64 FFmpeg/ffprobe executables include the
+GPL-2.0-or-later x264 and x265 software encoders, including 10-bit HEVC support.
+That Windows FFmpeg build is GPL-2.0-or-later, not the macOS LGPL-only build.
+Networking, nonfree components and GPLv3 components are not enabled.
+The zlib dependency uses the zlib license. Corresponding FFmpeg, x264, x265
+and zlib source archives, full license texts, build instructions and toolchain
+notices accompany Windows packages under media-tools/win32-x64/.
+The resource manifest for Windows is manifest.win32-x64.json.
+These command-line tools run as separate supervised processes; their licenses
+and source obligations are documented independently of the project code.
 
 JavaScript runtime dependencies
 -------------------------------
@@ -28,5 +41,5 @@ third-party notices are included as licenses/Chromium.html,
 copied from the exact Electron runtime distribution. Electron's own license is
 included as licenses/Electron.txt.
 
-This local milestone package is not a signed/notarized or release-certified build.
-Redistribution/release checks remain part of Milestone 9.
+Review packages are unsigned and not release-certified.
+Windows client-OS/hardware and physical HDR review remain required.

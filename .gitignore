@@ -22,6 +22,16 @@ workspace.json.*
 export-session.json
 export-session.json.*
 
+# Windows native resources are built and checksum-pinned on Windows.
+resources/manifest.win32-x64.json
+resources/media-tools/win32-x64/*.exe
+resources/media-tools/win32-x64/BUILD-INFO.txt
+resources/media-tools/win32-x64/build-windows-media.sh
+resources/media-tools/win32-x64/prepare-windows-resources.mts
+resources/media-tools/win32-x64/sources/
+resources/media-tools/win32-x64/licenses/
+resources/licenses/windows/
+
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 

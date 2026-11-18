@@ -22,7 +22,7 @@ const config: ForgeConfig = {
     download: { checksums },
   },
   rebuildConfig: {},
-  makers: [new MakerZIP({}, ['darwin'])],
+  makers: [new MakerZIP({}, ['darwin', 'win32'])],
   plugins: [
     new VitePlugin({
       build: [

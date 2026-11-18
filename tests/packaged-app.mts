@@ -86,7 +86,12 @@ export async function withPackagedApp(
   ) => Promise<void>,
 ) {
   const child = spawn(
-    join(application, 'Contents/MacOS/Video Text Editor'),
+    join(
+      application,
+      process.platform === 'win32'
+        ? 'Video Text Editor.exe'
+        : 'Contents/MacOS/Video Text Editor',
+    ),
     [
       '--remote-debugging-address=127.0.0.1',
       '--remote-debugging-port=0',
@@ -96,11 +101,19 @@ export async function withPackagedApp(
       cwd: dirname(profile),
       stdio: ['ignore', 'ignore', 'pipe'],
       env: {
-        ...process.env,
-        PATH: '/usr/bin:/bin',
+        ...Object.fromEntries(
+          Object.entries(process.env).filter(
+            ([key]) => key.toLowerCase() !== 'path',
+          ),
+        ),
+        PATH:
+          process.platform === 'win32'
+            ? `${process.env.SystemRoot}\\System32;${process.env.SystemRoot}`
+            : '/usr/bin:/bin',
         VIDEO_EDITOR_TEST_BACKGROUND:
           process.env.VIDEO_EDITOR_TEST_BACKGROUND ?? '1',
       },
+      windowsHide: true,
     },
   );
   let browser: Browser | undefined;
