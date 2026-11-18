@@ -5,12 +5,34 @@ import { FusesPlugin } from '@electron-forge/plugin-fuses';
 import { FuseV1Options, FuseVersion } from '@electron/fuses';
 import { createRequire } from 'node:module';
 import { z } from 'zod';
+import { join } from 'node:path';
+import { inspectResources } from './src/main/resources/diagnostics.ts';
 
 const checksums = z
   .record(z.string(), z.string().regex(/^[0-9a-f]{64}$/))
   .parse(createRequire(import.meta.url)('electron/checksums.json'));
 
 const config: ForgeConfig = {
+  hooks: {
+    prePackage: async (_config, platform, architecture) => {
+      if (platform !== 'win32') return;
+      if (
+        process.platform !== 'win32' ||
+        process.arch !== 'x64' ||
+        architecture !== 'x64'
+      )
+        throw new Error(
+          'Build and validate Windows x64 packages on Windows x64.',
+        );
+      const failures = (
+        await inspectResources(join(import.meta.dirname, 'resources'))
+      ).filter((check) => check.status !== 'ready');
+      if (failures.length)
+        throw new Error(
+          `Prepare the Windows native resources before packaging:\n${failures.map((check) => `${check.id}: ${check.detail}`).join('\n')}`,
+        );
+    },
+  },
   packagerConfig: {
     asar: true,
     appBundleId: 'local.video-text-editor',

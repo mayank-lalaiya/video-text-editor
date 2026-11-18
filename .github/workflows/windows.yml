@@ -26,12 +26,11 @@ jobs:
           path-type: inherit
           update: false
           install: >-
-            make curl tar diffutils
+            make curl tar unzip diffutils
             mingw-w64-ucrt-x86_64-gcc
-            mingw-w64-ucrt-x86_64-cmake
             mingw-w64-ucrt-x86_64-ninja
             mingw-w64-ucrt-x86_64-pkgconf
-      - uses: actions/cache@v4
+      - uses: actions/cache/restore@v4
         id: native
         with:
           path: resources/media-tools/win32-x64
@@ -40,6 +39,11 @@ jobs:
         if: steps.native.outputs.cache-hit != 'true'
         shell: msys2 {0}
         run: bash scripts/build-windows-media.sh
+      - uses: actions/cache/save@v4
+        if: steps.native.outputs.cache-hit != 'true'
+        with:
+          path: resources/media-tools/win32-x64
+          key: ${{ steps.native.outputs.cache-primary-key }}
       - name: Pin Windows resources and audit native DLL dependencies
         shell: msys2 {0}
         run: node scripts/prepare-windows-resources.mts
