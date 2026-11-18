@@ -11,11 +11,12 @@ import { z } from 'zod';
 import { MediaWorker } from '../src/main/media/worker.ts';
 import { PreviewService } from '../src/main/media/preview.ts';
 import type { VideoAsset } from '../src/shared/editor.ts';
+import { mediaToolPath } from '../src/main/platform.ts';
 
 const execute = promisify(execFile);
-const ffmpeg = resolve('resources/media-tools/darwin-arm64/ffmpeg');
-const ffprobe = resolve('resources/media-tools/darwin-arm64/ffprobe');
-const guardian = resolve('resources/media-tools/darwin-arm64/media-guardian');
+const ffmpeg = resolve('resources', mediaToolPath('ffmpeg'));
+const ffprobe = resolve('resources', mediaToolPath('ffprobe'));
+const guardian = resolve('resources', mediaToolPath('media-guardian'));
 
 test('completed worker jobs release their process and abort listener across reuse', async () => {
   const worker = new MediaWorker({
@@ -128,7 +129,7 @@ test(
         '-i',
         'aevalsrc=if(eq(mod(n\\,48000)\\,19200)\\,0.8\\,0):s=48000:d=12',
         '-c:v',
-        'h264_videotoolbox',
+        process.platform === 'win32' ? 'libx264' : 'h264_videotoolbox',
         '-b:v',
         '1M',
         '-g',

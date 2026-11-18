@@ -13,6 +13,7 @@ import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { setTimeout as delay } from 'node:timers/promises';
 import { test } from 'node:test';
+import { mediaToolPath } from '../src/main/platform.ts';
 
 function alive(pid: number): boolean {
   try {
@@ -41,9 +42,7 @@ test(
     const workerModule = pathToFileURL(
       resolve('src/main/media/worker.ts'),
     ).href;
-    const guardian = resolve(
-      'resources/media-tools/darwin-arm64/media-guardian',
-    );
+    const guardian = resolve('resources', mediaToolPath('media-guardian'));
     const script = join(directory, 'parent.mjs');
     await writeFile(
       script,

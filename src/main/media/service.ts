@@ -35,6 +35,7 @@ import { publishOutput } from './publish.ts';
 import { exportPlan, posterFilters } from './colour.ts';
 import { PreviewService } from './preview.ts';
 import type { PreviewRequest, PreviewResult } from '../../shared/preview.ts';
+import { mediaToolPath } from '../platform.ts';
 
 interface Source {
   asset: VideoAsset;
@@ -96,7 +97,7 @@ export class MediaService {
     this.resources = resources;
     this.temporaryDirectory = temporaryDirectory;
     this.worker = new MediaWorker({
-      file: join(resources, 'media-tools/darwin-arm64/media-guardian'),
+      file: join(resources, mediaToolPath('media-guardian')),
       cleanupDirectories: () => [
         temporaryDirectory,
         ...(this.exportDirectory ? [this.exportDirectory] : []),

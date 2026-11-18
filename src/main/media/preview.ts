@@ -6,6 +6,7 @@ import {
 } from '../../shared/preview.ts';
 import { posterFilters } from './colour.ts';
 import { MediaWorker } from './worker.ts';
+import { mediaPlatform, type MediaPlatform } from '../platform.ts';
 
 export function previewArguments(
   path: string,
@@ -13,7 +14,10 @@ export function previewArguments(
   videoIndex: number,
   start: number,
   scaleInHardware = false,
+  target: MediaPlatform = mediaPlatform(),
 ): string[] {
+  const windows = target === 'win32-x64';
+  scaleInHardware = scaleInHardware && !windows;
   const edge = asset.colour.dynamicRange === 'sdr' ? 720 : 360;
   const scale = Math.min(
     1,
@@ -31,8 +35,7 @@ export function previewArguments(
     'error',
     '-filter_threads',
     '8',
-    '-hwaccel',
-    'videotoolbox',
+    ...(!windows ? ['-hwaccel', 'videotoolbox'] : []),
     ...(scaleInHardware ? ['-hwaccel_output_format', 'videotoolbox_vld'] : []),
     '-ss',
     String(start),
@@ -49,18 +52,18 @@ export function previewArguments(
     '-vf',
     `fps=15:start_time=0:eof_action=pass,${scaleInHardware ? `scale_vt=w=${width}:h=${height},hwdownload,format=p010le,` : ''}${posterFilters(asset, width, height)},scale=in_color_matrix=auto:out_color_matrix=bt709:out_range=limited,format=yuv420p,setparams=range=limited:color_primaries=bt709:color_trc=bt709:colorspace=bt709`,
     '-c:v',
-    'h264_videotoolbox',
+    windows ? 'libx264' : 'h264_videotoolbox',
     '-profile:v',
     'baseline',
     '-level:v',
     '3.1',
-    '-realtime',
-    '1',
+    ...(windows
+      ? ['-preset', 'ultrafast', '-tune', 'zerolatency']
+      : ['-realtime', '1']),
     // VideoToolbox's low_delay mode is one-in/one-out; realtime alone is a hint.
     '-flags:v',
     '+low_delay',
-    '-prio_speed',
-    '1',
+    ...(!windows ? ['-prio_speed', '1'] : []),
     '-b:v',
     '700k',
     '-maxrate',

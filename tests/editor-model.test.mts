@@ -376,7 +376,9 @@ test(
       worker.run(
         fileURLToPath(
           new URL(
-            '../resources/media-tools/darwin-arm64/ffmpeg',
+            process.platform === 'win32'
+              ? '../resources/media-tools/win32-x64/ffmpeg.exe'
+              : '../resources/media-tools/darwin-arm64/ffmpeg',
             import.meta.url,
           ),
         ),

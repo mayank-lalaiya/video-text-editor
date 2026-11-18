@@ -10,6 +10,7 @@ import {
   validateToolBuild,
 } from './diagnostics.ts';
 import type { ResourceEntry } from './manifest.ts';
+import { resourceManifestName } from '../platform.ts';
 
 async function fixture(t: TestContext) {
   const directory = await mkdtemp(
@@ -48,7 +49,7 @@ test('changed resource bytes fail checksum validation', async (t) => {
 test('an invalid disk manifest cannot point outside the bundle', async (t) => {
   const { directory, entry } = await fixture(t);
   await writeFile(
-    join(directory, 'manifest.json'),
+    join(directory, resourceManifestName()),
     JSON.stringify({
       schemaVersion: 1,
       resources: [{ ...entry, relativePath: '../outside.ttf' }],
@@ -63,7 +64,7 @@ test('an invalid disk manifest cannot point outside the bundle', async (t) => {
 test('an empty manifest cannot produce a successful resource report', async (t) => {
   const { directory } = await fixture(t);
   await writeFile(
-    join(directory, 'manifest.json'),
+    join(directory, resourceManifestName()),
     '{"schemaVersion":1,"resources":[]}',
   );
   const checks = await inspectResources(directory);
@@ -77,6 +78,7 @@ test('native build checks reject nonfree components even with the right version'
       validateToolBuild(
         'ffmpeg',
         'ffmpeg version 9.0.2-video-text-editor-m2\nconfiguration: --disable-network --enable-zlib --enable-nonfree',
+        'darwin-arm64',
       ),
     /LGPL-only/,
   );
@@ -88,6 +90,7 @@ test('native build checks require disabled networking', () => {
       validateToolBuild(
         'ffprobe',
         'ffprobe version 9.0.2-video-text-editor-m2\nconfiguration: --disable-autodetect --enable-zlib',
+        'darwin-arm64',
       ),
     /networking disabled/,
   );
@@ -99,6 +102,7 @@ test('native build checks require the PNG/zlib capability used by real imports',
       validateToolBuild(
         'ffmpeg',
         'ffmpeg version 9.0.2-video-text-editor-m2\nconfiguration: --disable-network',
+        'darwin-arm64',
       ),
     /PNG support/,
   );

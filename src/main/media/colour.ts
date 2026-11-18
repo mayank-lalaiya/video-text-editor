@@ -1,4 +1,5 @@
 import type { VideoAsset, VideoColour } from '../../shared/editor.ts';
+import { mediaPlatform, type MediaPlatform } from '../platform.ts';
 
 type HdrTransfer = Exclude<VideoColour['dynamicRange'], 'sdr'>;
 type HdrColour = Extract<VideoColour, { range: string }>;
@@ -109,8 +110,10 @@ export function exportPlan(
   videoIndex: number,
   sourceBitrate: number,
   sourceCodec: string | undefined,
+  target: MediaPlatform = mediaPlatform(),
 ): { filter: string; encodingArgs: string[] } {
   const hevc = exportCodec(asset, sourceCodec) === 'hevc';
+  const windows = target === 'win32-x64';
   if (!Number.isFinite(sourceBitrate) || sourceBitrate <= 0)
     throw new Error('A positive source video bitrate is required for export.');
   // Simple 10-bit sources still need headroom for newly added sharp glyphs.
@@ -131,6 +134,23 @@ export function exportPlan(
     String(bitrate * 3),
   ];
   const { colour } = asset;
+  const pixelFormat = tenBit ? (windows ? 'yuv420p10le' : 'p010le') : 'yuv420p';
+  const encoder = windows
+    ? hevc
+      ? 'libx265'
+      : 'libx264'
+    : hevc
+      ? 'hevc_videotoolbox'
+      : 'h264_videotoolbox';
+  const cpuOptions = windows
+    ? [
+        '-preset',
+        'fast',
+        '-bf',
+        '0',
+        ...(hevc ? ['-x265-params', 'log-level=error'] : []),
+      ]
+    : [];
   if (colour.dynamicRange === 'sdr') {
     return {
       filter: `[0:${videoIndex}][1:v:0]overlay=0:0:eof_action=repeat:format=${tenBit ? 'yuv420p10' : 'yuv420'}[out]`,
@@ -138,13 +158,14 @@ export function exportPlan(
         '-map_metadata',
         '0',
         '-c:v',
-        hevc ? 'hevc_videotoolbox' : 'h264_videotoolbox',
+        encoder,
+        ...cpuOptions,
         '-profile:v',
         tenBit ? 'main10' : hevc ? 'main' : 'high',
         ...(hevc ? ['-tag:v', 'hvc1'] : []),
         ...rateControl,
         '-pix_fmt',
-        tenBit ? 'p010le' : 'yuv420p',
+        pixelFormat,
         '-enc_time_base:v',
         'filter',
       ],
@@ -157,20 +178,21 @@ export function exportPlan(
       `[text]${textFilters()}[graphics]`,
       '[alpha]alphaextract,scale=in_range=full:out_range=full:in_transfer=linear:out_transfer=linear:sws_backends=c,format=gbrpf32le[mask]',
       '[background][graphics][mask]maskedmerge=planes=7[composite]',
-      `[composite]${hdrEncodeFilters(colour.dynamicRange)},setparams=range=full:color_primaries=bt2020:color_trc=linear:colorspace=gbr,scale=in_color_matrix=0:out_color_matrix=bt2020nc:in_range=full:out_range=${colour.range}:in_primaries=bt2020:out_primaries=bt2020:in_transfer=linear:out_transfer=linear:sws_backends=c,format=yuv444p10le,${chromaScale(colour)},format=p010le,setparams=${hdrTags(colour)}[out]`,
+      `[composite]${hdrEncodeFilters(colour.dynamicRange)},setparams=range=full:color_primaries=bt2020:color_trc=linear:colorspace=gbr,scale=in_color_matrix=0:out_color_matrix=bt2020nc:in_range=full:out_range=${colour.range}:in_primaries=bt2020:out_primaries=bt2020:in_transfer=linear:out_transfer=linear:sws_backends=c,format=yuv444p10le,${chromaScale(colour)},format=${pixelFormat},setparams=${hdrTags(colour)}[out]`,
     ].join(';'),
     encodingArgs: [
       '-map_metadata',
       '-1',
       '-c:v',
-      'hevc_videotoolbox',
+      encoder,
+      ...cpuOptions,
       '-profile:v',
       'main10',
       '-tag:v',
       'hvc1',
       ...rateControl,
       '-pix_fmt',
-      'p010le',
+      pixelFormat,
       '-bsf:v',
       'dovi_rpu=strip=1',
       '-color_primaries',

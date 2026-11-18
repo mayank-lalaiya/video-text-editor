@@ -33,7 +33,8 @@ export class MediaWorker {
           ...(guardian ? ['pipe' as const] : []),
         ],
         shell: false,
-        detached: !!guardian,
+        detached: !!guardian && process.platform !== 'win32',
+        windowsHide: true,
       },
     );
     const stdout = child.stdout;
@@ -50,11 +51,27 @@ export class MediaWorker {
       let timer: ReturnType<typeof setTimeout> | undefined;
       stop = () => {
         if (timer) return;
-        child.kill('SIGTERM');
+        if (guardian && process.platform === 'win32') {
+          const lifeline = child.stdio[3];
+          if (!lifeline || !('write' in lifeline))
+            throw new Error('The Windows worker has no cancellation pipe.');
+          lifeline.write(
+            Buffer.from([1]),
+            (error: Error | null | undefined) => {
+              if (error) {
+                console.error(
+                  'Windows worker cancellation pipe failed.',
+                  error,
+                );
+                child.kill('SIGKILL');
+              }
+            },
+          );
+        } else child.kill('SIGTERM');
         stdout.destroy();
         timer = setTimeout(
           () => {
-            if (!guardian) {
+            if (!guardian || process.platform === 'win32') {
               child.kill('SIGKILL');
               return;
             }

@@ -21,7 +21,14 @@ export function createEditorMenu(getWindow: () => BrowserWindow | null) {
     } else window.webContents.send(HISTORY_CHANNELS.command, command);
   };
   const menu = Menu.buildFromTemplate([
-    { role: 'appMenu' },
+    ...(process.platform === 'darwin'
+      ? [{ role: 'appMenu' as const }]
+      : [
+          {
+            label: 'File',
+            submenu: [{ role: 'quit' as const }],
+          },
+        ]),
     {
       role: 'editMenu',
       label: 'Edit',
@@ -48,10 +55,17 @@ export function createEditorMenu(getWindow: () => BrowserWindow | null) {
         { role: 'delete' },
         { role: 'selectAll' },
         { type: 'separator' },
-        {
-          label: 'Speech',
-          submenu: [{ role: 'startSpeaking' }, { role: 'stopSpeaking' }],
-        },
+        ...(process.platform === 'darwin'
+          ? [
+              {
+                label: 'Speech',
+                submenu: [
+                  { role: 'startSpeaking' as const },
+                  { role: 'stopSpeaking' as const },
+                ],
+              },
+            ]
+          : []),
       ],
     },
     { role: 'viewMenu' },

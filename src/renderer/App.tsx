@@ -283,7 +283,13 @@ export function App() {
         </span>
         <span>
           {status.data
-            ? `v${status.data.appVersion} / macOS / Apple silicon`
+            ? `v${status.data.appVersion} / ${
+                status.data.platform === 'darwin'
+                  ? 'macOS / Apple silicon'
+                  : status.data.platform === 'win32'
+                    ? 'Windows / x64'
+                    : `${status.data.platform} / ${status.data.architecture}`
+              }`
             : 'Desktop startup checks'}
         </span>
       </footer>

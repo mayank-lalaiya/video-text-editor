@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { z } from 'zod';
 import { ResourceKindSchema } from '../../shared/contracts.ts';
+import { resourceManifestName } from '../platform.ts';
 
 const ResourceEntrySchema = z.strictObject({
   id: z.string().regex(/^[a-z0-9-]+$/),
@@ -37,7 +38,7 @@ export type ResourceEntry = z.infer<typeof ResourceEntrySchema>;
 
 export async function readManifest(directory: string) {
   const json: unknown = JSON.parse(
-    await readFile(join(directory, 'manifest.json'), 'utf8'),
+    await readFile(join(directory, resourceManifestName()), 'utf8'),
   );
   return ResourceManifestSchema.parse(json);
 }

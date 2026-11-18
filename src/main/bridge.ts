@@ -25,6 +25,7 @@ import {
 import { inspectResources } from './resources/diagnostics.ts';
 import { QUEUE_CHANNEL, QueueCommandSchema } from '../shared/export-queue.ts';
 import type { ExportQueueService } from './media/export-queue.ts';
+import { mediaPlatform } from './platform.ts';
 
 export function registerDesktopApi(
   getWindow: () => BrowserWindow | null,
@@ -57,13 +58,15 @@ export function registerDesktopApi(
         throw new Error('This operation takes no arguments.');
       request = ++bootstrapRequest;
       const checks = await inspectResources(resourceDirectory);
-      if (process.platform !== 'darwin' || process.arch !== 'arm64') {
+      try {
+        mediaPlatform();
+      } catch (error) {
         checks.unshift({
           id: 'platform',
           label: 'Supported platform',
           kind: 'tool',
           status: 'error',
-          detail: 'This build supports macOS 15+ on Apple silicon only.',
+          detail: error instanceof Error ? error.message : String(error),
         });
       }
       if (request === bootstrapRequest)

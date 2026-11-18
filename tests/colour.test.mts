@@ -20,9 +20,10 @@ import {
   type Probe,
 } from '../src/main/media/probe.ts';
 import type { VideoColour } from '../src/shared/editor.ts';
+import { mediaToolPath } from '../src/main/platform.ts';
 
 const ffmpeg = fileURLToPath(
-  new URL('../resources/media-tools/darwin-arm64/ffmpeg', import.meta.url),
+  new URL(`../resources/${mediaToolPath('ffmpeg')}`, import.meta.url),
 );
 const execute = (args: string[], input?: Buffer) =>
   execFileSync(
@@ -271,7 +272,7 @@ test('exports retain the source codec with bounded bitrate and reject invalid ra
     color_primaries: 'bt709',
   });
   const asset = describeVideo(source, randomUUID(), 'hevc-sdr.mp4');
-  const plan = exportPlan(asset, 0, 22000000, 'hevc');
+  const plan = exportPlan(asset, 0, 22000000, 'hevc', 'darwin-arm64');
   assert.equal(
     plan.encodingArgs[plan.encodingArgs.indexOf('-c:v') + 1],
     'hevc_videotoolbox',
@@ -295,7 +296,7 @@ test('exports retain the source codec with bounded bitrate and reject invalid ra
       ),
     /codec/,
   );
-  const h264 = exportPlan(asset, 0, 1000000, 'h264');
+  const h264 = exportPlan(asset, 0, 1000000, 'h264', 'darwin-arm64');
   assert.equal(
     h264.encodingArgs[h264.encodingArgs.indexOf('-c:v') + 1],
     'h264_videotoolbox',
