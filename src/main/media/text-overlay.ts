@@ -18,6 +18,7 @@ export async function rasterizeText(
     width: request.width,
     height: request.height,
     transparent: true,
+    frame: process.platform !== 'win32',
     backgroundColor: '#00000000',
     webPreferences: {
       preload: join(__dirname, 'overlay-preload.cjs'),
@@ -25,6 +26,8 @@ export async function rasterizeText(
       contextIsolation: true,
       nodeIntegration: false,
       backgroundThrottling: false,
+      // Windows needs a composited surface even though this window is never shown.
+      offscreen: process.platform === 'win32',
     },
   });
   window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
