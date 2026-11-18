@@ -5,7 +5,7 @@
 - Status: APPROVED; Milestone 9 local-only Mac review implemented; physical HDR review pending
 - Requirements: [approved PRD](./PRD.md)
 - Scope: full-product design; implementation proceeds only through authorized milestones
-- Current step: Milestone 10 authorized for Windows 10/11 x64 CPU-compatible preview; client-OS/hardware certification pending
+- Current step: Milestone 10 Windows x64 CPU-compatible preview implemented and validated on Windows Server 2022/2025; client-OS/hardware certification pending
 
 ## 1. Decisions in plain language
 
@@ -22,7 +22,7 @@ encoding, permissions, and packaging still need platform-specific handling.
 | Decision                                                 | Status                                                                                    |
 | -------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
 | Shared codebase rather than separate Mac/Windows editors | Confirmed                                                                                 |
-| macOS 15+ / Apple silicon; Windows 10/11 / Intel x64 preview | Confirmed; Windows preview authorized on 2026-11-18                                      |
+| macOS 15+ / Apple silicon; Windows 10/11 / Intel x64 preview | Implemented; Windows Server 2022/2025 packaged checks pass; client certification pending |
 | Dark three-column editor and speed-first preview         | Confirmed                                                                                 |
 | Electron + React + TypeScript                            | Implemented; packaged foundation and native SDR/HDR tests pass                            |
 | Chromium textarea plus custom selection frame            | Adopted after the Milestone 2 interaction/fidelity proof; no Fabric dependency            |

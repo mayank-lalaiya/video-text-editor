@@ -1,7 +1,7 @@
 # Development and Validation History
 
-Historical implementation notes and local validation evidence through version
-0.9.2. For current setup, usage and build instructions, see the
+Implementation history and validation evidence through the 0.10.0 Windows
+portable preview. For current setup, usage and build instructions, see the
 [project README](../README.md). Real-footage samples use anonymous labels;
 private media, measurements containing source paths and generated packages
 are not included in the repository.
@@ -15,7 +15,57 @@ H.264 or HEVC; 10-bit SDR and HDR use Main10 HEVC. Compatible AAC audio is copie
 This is a local review build, not the complete PRD or a production release.
 Wider-distribution certification and physical HDR visual review are still required.
 
-## Try the current build
+## Windows portable preview: 0.10.0
+
+Validated on 2026-11-18 by
+[GitHub Actions run 44329161383](https://github.com/mayank-lalaiya/video-text-editor/actions/runs/44329161383),
+commit `e92d8a765ed5bbc46bbc225569d02170c3d42f38`.
+
+- Windows Server 2022 x64: source-built static CPU workers, PE/build/DLL audit,
+  pinned resources/licenses/corresponding source, typecheck/lint, all **65**
+  unit/native cases, portable ZIP packaging and **2** packaged checks passed.
+- Windows Server 2025 x64: independently downloaded/extracted the actual ZIP
+  and passed both packaged checks again, without a developer media-tool PATH.
+- The real hardened app imported and exported SDR H.264, SDR HEVC, HLG Main10
+  and PQ Main10, played the preview, rendered text/emoji, used paths containing
+  spaces and accented characters, and reopened the saved workspace offline.
+- Each export retained **50** displayed frames, timestamp drift within **2 us**,
+  identical AAC packet hashes, unchanged original source bytes and visible text.
+  No owned partial-export directory remained.
+- Job Object supervision passed ordinary cancellation (keeping live session
+  posters) and forced-parent-death cleanup (reaping the worker and preserving
+  originals). Oversized Windows output names are blocked per file.
+
+The same artifact passed these unchanged numerical gates on both runners:
+
+| Measurement | Required | Observed |
+| --- | --- | --- |
+| Non-text SDR H.264 PSNR | >=42 dB | >=56.61 dB |
+| Non-text SDR HEVC PSNR | >=42 dB | 61.01 dB |
+| HLG / PQ gradient levels | >700 | 821 / 1021 |
+| HLG / PQ mean non-text ten-bit error | <2 codes | 0.129 / 0.005 codes |
+| HLG / PQ mean glyph-white error | <3 codes | 0.644 / 0.460 codes |
+| Opaque white glyph-interior samples | >50 | 270 per HDR export |
+
+HLG uses limited range; PQ uses full range. The gradient inputs are genuinely
+ten-bit, not eight-bit images relabelled as Main10.
+
+The Windows-only offscreen text compositor was followed by a fresh Mac build
+and calibrated HDR export regression: HLG/PQ gradient levels **772 / 932** and
+glyph-white errors **1.023 / 0.944** codes, unchanged from earlier Mac results.
+The full existing Mac desktop/package suite had already passed **40** checks
+with **2** optional skips; **23** focused colour/preview/queue/guardian cases
+also passed after the Windows lifecycle and filename fixes.
+
+These are unsigned portable previews, not signed installers or production
+certification. No Windows 10/11 client PC, physical HDR display or reference-PC
+performance/power-loss testing was performed. Server CI does not close those
+release gates. Mac workers remain LGPL-only; the separate Windows GPL FFmpeg
+build includes its pinned FFmpeg/x264/x265/zlib sources, recipe and notices.
+
+The remaining sections record the historical macOS milestones through 0.9.2.
+
+## Historical macOS review workflow
 
 1. Import or drop H.264/HEVC MP4/MOV files: SDR or supported 10-bit BT.2020 HLG/PQ.
    HDR shows **SDR preview; HDR export**; preview colour is a placement approximation.

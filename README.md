@@ -9,6 +9,10 @@ Windows 10/11 on Intel x64 PCs. Review builds are unsigned, not production
 releases. Windows client-OS, physical HDR and reference-hardware certification
 remain separate release gates.
 
+The Windows portable app has passed native checks on Windows Server 2022 and
+2025, including independent extraction and testing of the actual ZIP.
+See the [Windows validation results](./arch/VALIDATION.md#windows-portable-preview-0100).
+
 ## Features
 
 - Import multiple H.264/HEVC MP4 or MOV files into a persistent local workspace.

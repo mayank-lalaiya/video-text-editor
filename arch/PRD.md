@@ -5,7 +5,7 @@ For setup and usage, see the [project README](../README.md).
 - Version: 0.9
 - Date: 2026-11-17
 - Status: APPROVED on 2026-11-17
-- Phase: Milestone 9 Mac review implemented; Milestone 10 Windows preview authorized on 2026-11-18; physical HDR visual review pending
+- Phase: Milestones 9 and 10 Mac/Windows previews implemented; native Windows Server 2022/2025 validation passed on 2026-11-18; client-OS and physical HDR review pending
 - UI direction: approved
 - Implementation: Milestones 1 through 10 authorized; Windows client-OS and hardware release certification remain required
 - Regression-fix decisions: high-quality lossy MP4 and 100-step/16-MiB Undo retention approved on 2026-11-17

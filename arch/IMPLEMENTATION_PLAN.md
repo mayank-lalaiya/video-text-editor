@@ -4,7 +4,7 @@
 - Date: 2026-11-17
 - Status: APPROVED on 2026-11-17; Milestone 9 authorized for local-only Mac review
 - Design direction: approved for planning
-- Application implementation: Milestones 1 through 9 implemented locally; Milestone 10 Windows preview authorized on 2026-11-18; client-OS/hardware and physical HDR certification pending
+- Application implementation: Milestones 1 through 10 implemented for unsigned Mac/Windows preview; native Windows Server 2022/2025 validation passed on 2026-11-18; client-OS/hardware and physical HDR certification pending
 - First release: macOS 15+ on Apple silicon
 - Windows preview target: Windows 10 and 11 on Intel x64, using the shared codebase
 
@@ -309,7 +309,7 @@ Verification:
 **Gate G5 / macOS release review:** the application is not complete until these
 checks pass or an explicit requirement revision is agreed.
 
-### Milestone 10: Windows preview, authorized
+### Milestone 10: Windows portable preview, implemented
 
 Authorized on 2026-11-18 after review of the Windows-specific approach.
 The approved target expands to Windows 10 and 11 on Intel x64. No 32-bit or
@@ -331,15 +331,20 @@ Windows ARM release is included.
 
 - Use the shared UI, domain rules, schemas, text resources, and job workflow.
 - Add/test Windows x64 tool binaries, codec capabilities, app-data paths, permissions,
-  Ctrl shortcuts, window integration, process cancellation, and installer behavior.
+  Ctrl shortcuts, window integration, process cancellation, and portable ZIP extraction.
 - Validate the same text/emoji geometry and HDR/SDR output on Windows itself.
 - Run Windows acceptance/performance checks before claiming support.
 - Obtain access to a suitable Windows test/build environment when this phase begins.
   Do not assume a Mac build or an untested cross-build proves Windows behavior.
 
-**Checkpoint:** the implementation plan, CPU/GPL trade-off and GitHub workflow
-publication are approved. A passing Mac build or Server CI alone does not close
-the Windows client-OS, physical HDR or reference-hardware release gates.
+**Checkpoint:** [native run 44329161383](https://github.com/mayank-lalaiya/video-text-editor/actions/runs/44329161383)
+passed all 65 unit/native checks and both packaged-app checks on Windows Server
+2022. Windows Server 2025 independently extracted the actual uploaded ZIP and
+passed both packaged checks again. Actual UI exports cover SDR H.264/HEVC,
+HLG/PQ Main10, text/emoji, Unicode paths, audio/timing and workspace restoration.
+Dense ten-bit gradients and calibrated HDR white thresholds pass without
+relaxation; [measurements](./VALIDATION.md#windows-portable-preview-0100) are recorded.
+The Windows client-OS, physical HDR and reference-hardware release gates remain open.
 
 ## 5. Code and tooling boundaries
 
