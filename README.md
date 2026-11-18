@@ -49,6 +49,7 @@ Microsoft Store codec extensions.
 git clone https://github.com/mayank-lalaiya/video-text-editor.git
 cd video-text-editor
 npm ci
+npx --no-install install-electron
 npm start
 ```
 
@@ -150,6 +151,7 @@ on `PATH`, clone this repository, then run:
 
 ```sh
 npm ci
+npx --no-install install-electron
 pacman -S --needed make curl tar unzip diffutils \
   mingw-w64-ucrt-x86_64-gcc \
   mingw-w64-ucrt-x86_64-ninja mingw-w64-ucrt-x86_64-pkgconf
