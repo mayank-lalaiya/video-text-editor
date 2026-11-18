@@ -5,7 +5,7 @@
 - Status: APPROVED; Milestone 9 local-only Mac review implemented; physical HDR review pending
 - Requirements: [approved PRD](./PRD.md)
 - Scope: full-product design; implementation proceeds only through authorized milestones
-- Current step: Milestone 9 explicitly authorized for local-only review; Milestone 10 not authorized
+- Current step: Milestone 10 authorized for Windows 10/11 x64 CPU-compatible preview; client-OS/hardware certification pending
 
 ## 1. Decisions in plain language
 
@@ -22,11 +22,11 @@ encoding, permissions, and packaging still need platform-specific handling.
 | Decision                                                 | Status                                                                                    |
 | -------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
 | Shared codebase rather than separate Mac/Windows editors | Confirmed                                                                                 |
-| macOS 15+ / Apple silicon first; Windows 11 / x64 later  | Confirmed                                                                                 |
+| macOS 15+ / Apple silicon; Windows 10/11 / Intel x64 preview | Confirmed; Windows preview authorized on 2026-11-18                                      |
 | Dark three-column editor and speed-first preview         | Confirmed                                                                                 |
 | Electron + React + TypeScript                            | Implemented; packaged foundation and native SDR/HDR tests pass                            |
 | Chromium textarea plus custom selection frame            | Adopted after the Milestone 2 interaction/fidelity proof; no Fabric dependency            |
-| Bundled FFmpeg/ffprobe for local media work              | Local LGPL-only build; SDR/HDR export verified automatically; physical HDR review pending |
+| Bundled FFmpeg/ffprobe for local media work              | LGPL-only Mac tools; separate GPL CPU Windows tools; physical HDR review pending          |
 
 Design approval alone is not validation. SDR/HDR numerical checks and a real HLG
 export are recorded below and in the implementation plan. Physical HDR visual
@@ -569,6 +569,15 @@ outputs, remove only tracked partial files, and surface cleanup failures.
 Do not claim Windows support from a successful Mac build. The Windows release
 needs its own build environment, packaged binaries, and acceptance runs.
 
+The approved Windows preview targets Windows 10/11 x64 with software x264/x265
+encoding, including HEVC Main10. Its separate offline FFmpeg build is GPL with
+corresponding source and notices, while Mac resources remain LGPL-only.
+Windows uses a separate generated manifest, PE/x64 validation, planar 10-bit
+output and a Job Object supervisor with an explicit cancellation pipe.
+The shared preview compositor, text layout and output validation stay authoritative.
+Native GitHub Actions checks cover Windows Server 2022/2025 packaged behavior;
+client-OS, physical HDR and reference-performance release gates remain open.
+
 ## 11. Feasibility gates before substantial implementation
 
 Current evidence is limited to the milestones explicitly authorized.
@@ -599,8 +608,9 @@ record the result and revise the design rather than building around an unverifie
 
 The user approved the visual and shared technology direction on 2026-11-17.
 The [implementation plan](./IMPLEMENTATION_PLAN.md) and full PRD are now approved.
-The user explicitly authorized Milestones 1 through 9, choosing local-only Mac
-review for Milestone 9. Stop after Milestone 9 before implementing Milestone 10.
+The user explicitly authorized Milestones 1 through 10, choosing local-only Mac
+review for Milestone 9 and CPU-compatible Windows 10/11 x64 preview work for
+Milestone 10. Broader release certification remains gated.
 The desktop foundation and one-video SDR/HDR numerical proofs have passed local checks; see the
 [implementation record](./IMPLEMENTATION_PLAN.md#8-current-checkpoint) and
 [development guide](../README.md). Preview playback now passes local automated

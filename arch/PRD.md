@@ -5,9 +5,9 @@ For setup and usage, see the [project README](../README.md).
 - Version: 0.9
 - Date: 2026-11-17
 - Status: APPROVED on 2026-11-17
-- Phase: Milestone 9 local-only Mac review implemented; physical HDR visual review pending
+- Phase: Milestone 9 Mac review implemented; Milestone 10 Windows preview authorized on 2026-11-18; physical HDR visual review pending
 - UI direction: approved
-- Implementation: Milestones 1 through 9 authorized; Milestone 10 requires separate approval
+- Implementation: Milestones 1 through 10 authorized; Windows client-OS and hardware release certification remain required
 - Regression-fix decisions: high-quality lossy MP4 and 100-step/16-MiB Undo retention approved on 2026-11-17
 
 ## 1. Product goal
@@ -46,7 +46,7 @@ remain subject to separate approval.
 
 | Area                 | Confirmed requirement                                                                                             |
 | -------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| Platforms            | First release: macOS 15+ on Apple silicon; later release: Windows 11 on x64 PCs                                   |
+| Platforms            | macOS 15+ on Apple silicon; Windows preview: Windows 10 and 11 on Intel x64 PCs                                   |
 | Development approach | Shared cross-platform codebase, with separate packages and necessary OS-specific integrations                     |
 | Processing           | Entirely local; no uploading videos to servers                                                                    |
 | Multiple videos      | Independent editing jobs; never combined                                                                          |
@@ -142,10 +142,10 @@ implementation-time feasibility gates are not waived by approval.
   preview controls.
 - Accounts, cloud storage/rendering, collaboration, and social-media publishing.
 - Named project files, portable project packages, and source-media duplication.
-- Intel Macs, Windows ARM, Windows 10, mobile devices, and web-browser clients.
+- Intel Macs, Windows ARM, 32-bit Windows, mobile devices, and web-browser clients.
 - Exact Dolby Vision preservation, true HDR preview, and user-facing encoder settings.
-- Windows packaging and Windows release validation are deferred until after the
-  macOS release; Windows remains a planned platform, not a second rewritten editor.
+- Signed Windows installers, automatic updates and release certification are
+  separate from the authorized unsigned portable Windows preview.
 
 ## 5. Primary user journey
 
@@ -712,10 +712,16 @@ Progress closes into results only after writers have stopped and outputs are fin
 ### Proposed measurable targets
 
 For the first release, benchmark local SSD media on an Apple-silicon Mac with
-16 GB RAM. For the later Windows release, use a Windows 11 x64 PC with 16 GB RAM
+16 GB RAM. For the Windows release, test Windows 10 and 11 x64 PCs with 16 GB RAM
 and a modern six-core CPU. Record exact machines during implementation; these
 are benchmark references, not an added CPU-family promise. Windows validation
 is a gate for the Windows release, not a prerequisite for delivering macOS.
+
+The Windows preview uses CPU H.264/HEVC encoders for broad Intel x64 compatibility,
+including Main10 HDR; real-time export is not promised. The approved Windows
+FFmpeg build is GPL-2.0-or-later, with the corresponding x264/x265/zlib and FFmpeg
+source, build recipe and license notices included. The Mac build remains LGPL-only.
+Windows Server CI is an automation environment, not client-OS/HDR certification.
 
 | Measure                                            | Acceptance target                                                                         |
 | -------------------------------------------------- | ----------------------------------------------------------------------------------------- |

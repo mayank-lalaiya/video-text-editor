@@ -4,9 +4,9 @@
 - Date: 2026-11-17
 - Status: APPROVED on 2026-11-17; Milestone 9 authorized for local-only Mac review
 - Design direction: approved for planning
-- Application implementation: Milestones 1 through 9 implemented locally; physical HDR visual review, minimum-OS and M1 Pro certification pending; Milestone 10 not authorized
+- Application implementation: Milestones 1 through 9 implemented locally; Milestone 10 Windows preview authorized on 2026-11-18; client-OS/hardware and physical HDR certification pending
 - First release: macOS 15+ on Apple silicon
-- Later release: Windows 11 on x64, using the shared codebase
+- Windows preview target: Windows 10 and 11 on Intel x64, using the shared codebase
 
 References: [requirements](./PRD.md), [design](./DESIGN.md),
 [visual mockup](./editor-macos.svg).
@@ -309,9 +309,25 @@ Verification:
 **Gate G5 / macOS release review:** the application is not complete until these
 checks pass or an explicit requirement revision is agreed.
 
-### Milestone 10: Windows release, later
+### Milestone 10: Windows preview, authorized
 
-This is not part of the initial macOS implementation.
+Authorized on 2026-11-18 after review of the Windows-specific approach.
+The approved target expands to Windows 10 and 11 on Intel x64. No 32-bit or
+Windows ARM release is included.
+
+- Preserve the macOS media pipeline and share the UI, workspace and editor rules.
+- Use CPU x264/x265 encoding, including HEVC Main10, without a GPU requirement.
+  The separately built Windows FFmpeg is GPL-2.0-or-later with corresponding
+  source/notices; macOS remains LGPL-only. This trade-off was explicitly approved.
+- Build static, offline workers from immutable source pins in MSYS2 UCRT64.
+- Supervise native children using Windows Job Objects and a parent-lifeline/
+  cancellation pipe; retain bounded stop, crash cleanup and source safety.
+- Flush pending workspace bytes and atomically replace saves with backups.
+  Do not attempt unsupported POSIX directory fsync on Windows.
+- Produce an unsigned portable ZIP, not a signed installer or auto-updater.
+- Build/test through GitHub Actions on Windows Server 2022 and 2025 runners.
+  Separately validate actual Windows 10/11 clients, physical HDR and performance
+  before claiming a certified Windows release.
 
 - Use the shared UI, domain rules, schemas, text resources, and job workflow.
 - Add/test Windows x64 tool binaries, codec capabilities, app-data paths, permissions,
@@ -321,8 +337,9 @@ This is not part of the initial macOS implementation.
 - Obtain access to a suitable Windows test/build environment when this phase begins.
   Do not assume a Mac build or an untested cross-build proves Windows behavior.
 
-**Checkpoint:** review and approve the Windows-specific implementation plan before
-executing this deferred milestone.
+**Checkpoint:** the implementation plan, CPU/GPL trade-off and GitHub workflow
+publication are approved. A passing Mac build or Server CI alone does not close
+the Windows client-OS, physical HDR or reference-hardware release gates.
 
 ## 5. Code and tooling boundaries
 
@@ -379,11 +396,13 @@ After those results, scope and estimates can be revisited with evidence.
 
 ## 8. Current checkpoint
 
-**Milestone 9 is implemented for the explicitly selected local-only Mac review.
-Stop before Milestone 10. Broader G5 release certification, physical HDR visual
-review, minimum-macOS execution and M1 Pro reference certification remain open.**
+**Milestone 9 is implemented for local Mac review. Milestone 10 is now authorized
+for an unsigned Windows 10/11 x64 CPU-compatible preview. Broader release
+certification, physical HDR visual review, minimum-OS execution and reference
+hardware certification remain open.**
 
-Current build: **0.9.2**, macOS arm64, unsigned local review under
+Current source: **0.10.0 preview**, with Windows native/portable validation in
+progress. Last delivered Mac review build: **0.9.2**, unsigned under
 `out/preview-0.9.2/`. Older isolated packages are preserved.
 
 ### Balanced export bitrate correction (0.9.2)
