@@ -50,7 +50,8 @@ cp COPYING "$destination/licenses/x264.txt"
 
 common=(-G Ninja -DENABLE_SHARED=OFF -DENABLE_CLI=OFF -DENABLE_ASSEMBLY=OFF
   -DENABLE_NUMA=OFF -DENABLE_HDR10_PLUS=OFF -DCMAKE_BUILD_TYPE=Release
-  -DCMAKE_CXX_STANDARD=11 -DCMAKE_INSTALL_PREFIX="$prefix")
+  -DCMAKE_CXX_STANDARD=11 "-DCMAKE_CXX_FLAGS=-static-libgcc -static-libstdc++"
+  -DCMAKE_INSTALL_PREFIX="$prefix")
 "$cmake" -S "$work/x265/source" -B "$work/x265-10" "${common[@]}" \
   -DHIGH_BIT_DEPTH=ON -DEXPORT_C_API=OFF
 "$cmake" --build "$work/x265-10" --parallel "$jobs"
