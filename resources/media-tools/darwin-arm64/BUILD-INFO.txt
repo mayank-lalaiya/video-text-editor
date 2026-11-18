@@ -1,0 +1,70 @@
+Video Text Editor: PNG-capable media workers, reused for milestones 2 and 3
+
+Source: https://ffmpeg.org/releases/ffmpeg-9.0.2.tar.xz
+SHA-256: 8c3850283eb25fa026482078a04051e0be17347b09ef81a0849bec15a96e002e
+Upstream tag: n9.0.2
+Upstream commit: 946fcce07b6dcd0331c8cc609192aeff5e1924f8
+Unmodified corresponding source is included beside the executables.
+
+Compiler: Apple clang 21.0.0 (clang-2100.3.34.2)
+SDK: macOS 27.0
+Architecture: arm64
+Deployment target: MACOSX_DEPLOYMENT_TARGET=15.0
+Build command, inside the extracted ffmpeg-9.0.2 directory:
+
+export MACOSX_DEPLOYMENT_TARGET=15.0
+./configure --disable-autodetect --disable-network --disable-debug \
+  --disable-doc --disable-ffplay --enable-videotoolbox \
+  --enable-audiotoolbox --enable-zlib --extra-version=video-text-editor-m2
+make -j 8
+
+No source modifications, GPL, version3, or nonfree components were enabled.
+System zlib is explicitly enabled for PNG encoding/decoding; no separately bundled
+third-party library is required. Only standard macOS frameworks/system libraries are
+dynamically linked. The FFmpeg executables are LGPL-2.1-or-later; see the included
+COPYING.LGPLv2.1, LICENSE.md and individual source-file notices. The software is
+provided without warranty. This software is based in part on the work of the
+Independent JPEG Group; those upstream files are unmodified.
+
+Declared encoders include h264_videotoolbox, hevc_videotoolbox, aac and png.
+Declared filters include overlay, colorspace, scale, geq, maskedmerge,
+alphaextract and tonemap. zscale is NOT included.
+SDR output and timing/audio fidelity are verified by the Milestone 2 tests.
+Milestone 3 uses explicit BT.2100/ST 2084 float32 transfer functions and
+display-linear maskedmerge, not the 8-bit overlay filter. The reference C
+swscale backend performs range/primary/matrix conversion; separate 10-bit
+chroma resampling/repacking feeds Main10 P010 HEVC VideoToolbox. This also avoids
+the default scaler's measured integer-to-float normalization error. Canonical
+sRGB graphics use 203 cd/m2 nominal reference white. The exact numerical and
+encoded-gradient tests are in tests/colour.test.mts and tests/editor.test.mts.
+The bundled dovi_rpu bitstream filter strips Dolby metadata from encoded packets;
+frame-side cleanup alone did not prevent encoded RPU emission. HDR publication
+also requires a full decoded-frame metadata scan with no forbidden HDR metadata.
+
+Milestone 4 preview also reuses these binaries without a rebuild: on-demand
+eight-second fragmented H.264/AAC windows, VideoToolbox decode/low-delay encode,
+bounded decoder/filter threading, 15fps and at most 720px SDR / 480px HDR.
+HDR preview reuses the explicit Mobius tone-map path. Preview-only downscaling,
+frame dropping, first-track stereo audio and mute do not modify export settings.
+
+No binary or configure change was needed for milestone 3; executable hashes and
+the original "-video-text-editor-m2" native version remain unchanged. Apple APAC
+audio has no decoder in this build and is explicitly rejected, not dropped.
+Playback previews, long-video performance and visual HDR certification remain
+separate gates. This is not release certification.
+
+The root project's scripts/build-media-tools.mts automates this build.
+Changing SDK/compiler/build inputs may change hashes. Review and update resource
+pins after a deliberate rebuild; do not silently accept changed executable bytes.
+
+Regression release 0.5.1 adds the project-owned media-guardian executable.
+Its C source is bundled here as media-guardian.c (project UNLICENSED source).
+Build on macOS arm64 with: npm run build:guardian
+The build script uses clang -std=c11 -O2 -Wall -Wextra -Werror -arch arm64
+-mmacosx-version-min=15.0 and updates the resource-manifest SHA-256 pin.
+Version: media-guardian version 1-video-text-editor
+Only libSystem/system facilities are needed. FFmpeg/ffprobe are not rebuilt.
+The guardian monitors its parent's fd-3 lifeline, forwards cancellation, escalates
+after two seconds, reaps its child, and on parent death removes only recognized
+temporary files from the exact owned directories provided by the application.
+Source files and published exports are never cleanup targets.

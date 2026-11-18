@@ -1,0 +1,53 @@
+{
+  "name": "video-text-editor",
+  "productName": "Video Text Editor",
+  "version": "0.9.2",
+  "private": true,
+  "type": "module",
+  "license": "UNLICENSED",
+  "main": ".vite/build/main.cjs",
+  "description": "Offline video text editor, delivered on macOS first.",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "start": "electron-forge start",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.tools.json",
+    "lint": "oxlint && oxfmt --check src scripts tests *.mts *.json index.html README.md",
+    "format": "oxfmt --write src scripts tests *.mts *.json index.html README.md",
+    "test": "node --test src/main/resources/diagnostics.test.ts tests/editor-model.test.mts tests/colour.test.mts tests/preview.test.mts tests/guardian.test.mts tests/workspace.test.mts tests/text-copy.test.mts tests/export-queue.test.mts",
+    "test:preview-benchmark": "VIDEO_EDITOR_PREVIEW_BENCHMARK=1 node --test --test-name-pattern='4K60 preview benchmark' tests/editor.test.mts",
+    "test:package": "node --test tests/package.test.mts",
+    "test:desktop": "node --test --test-concurrency=1 tests/package.test.mts tests/desktop.test.mts tests/editor.test.mts tests/export-desktop.test.mts tests/lifecycle.test.mts tests/workspace-desktop.test.mts",
+    "build": "npm run typecheck && electron-forge package --platform=darwin --arch=arm64",
+    "package": "npm run build",
+    "make": "npm run typecheck && electron-forge make --platform=darwin --arch=arm64",
+    "make:review": "npm run typecheck && node scripts/package-review.mts",
+    "build:media": "node scripts/build-media-tools.mts",
+    "build:guardian": "node scripts/build-media-guardian.mts"
+  },
+  "dependencies": {
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@electron/asar": "4.3.1",
+    "@electron-forge/cli": "8.0.1",
+    "@electron-forge/core": "8.0.1",
+    "@electron-forge/maker-zip": "8.0.1",
+    "@electron-forge/plugin-fuses": "8.0.1",
+    "@electron-forge/plugin-vite": "8.0.1",
+    "@electron/fuses": "^2.1.3",
+    "@types/node": "^24.19.2",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^6.3.0",
+    "electron": "42.11.18",
+    "oxfmt": "^0.41.0",
+    "oxlint": "^1.93.0",
+    "playwright-core": "1.65.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.7"
+  }
+}

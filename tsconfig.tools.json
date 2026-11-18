@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "."
+  },
+  "include": [
+    "src/main/environment.d.ts",
+    "*.mts",
+    "scripts/**/*.mts",
+    "tests/**/*.mts"
+  ]
+}

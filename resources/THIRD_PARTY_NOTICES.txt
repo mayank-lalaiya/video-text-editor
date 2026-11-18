@@ -1,0 +1,32 @@
+Bundled editor-text fonts
+-------------------------
+Noto Sans and Noto Serif variable fonts (normal and italic, including bold
+weights), and the Noto Color Emoji COLRv1 font, come from google/fonts at commit
+7af0d90b4d532ffa4b041937b560c6df4e7b1e95.
+Their unmodified font files are licensed under SIL Open Font License 1.1.
+Copyright notices and full license texts accompany each family in fonts/.
+The emoji license here applies to the font software, not unrelated emoji artwork.
+Per-file source URLs and SHA-256 pins are in manifest.json.
+
+Bundled media workers
+---------------------
+FFmpeg and ffprobe 9.0.2-video-text-editor-m2 were built from unmodified upstream
+source without GPL/nonfree components or network support. They use macOS system
+frameworks/libraries, including system zlib for PNG support; no separate zlib
+library is redistributed. These executables are LGPL-2.1-or-later, not the license
+of an npm wrapper.
+See media-tools/darwin-arm64/ for the full license, corresponding source archive,
+build instructions, copyright notices and explicit capability limitations.
+
+JavaScript runtime dependencies
+-------------------------------
+React, React DOM, Scheduler and Zod use the MIT license. Their full notices are
+included in licenses/ because the JavaScript packages are bundled, not shipped as
+an installed node_modules tree.
+Electron includes Chromium, Node.js and other components. Their full runtime
+third-party notices are included as licenses/Chromium.html,
+copied from the exact Electron runtime distribution. Electron's own license is
+included as licenses/Electron.txt.
+
+This local milestone package is not a signed/notarized or release-certified build.
+Redistribution/release checks remain part of Milestone 9.

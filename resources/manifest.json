@@ -1,0 +1,185 @@
+{
+  "schemaVersion": 1,
+  "resources": [
+    {
+      "id": "noto-sans-regular",
+      "label": "Noto Sans Regular / Bold",
+      "kind": "font",
+      "relativePath": "fonts/noto-sans/Regular.ttf",
+      "sha256": "bfb7bb691513f12e734dc346c03a03f784912432d7e3fa8e56efcf906fe86b3d",
+      "sourceUrl": "https://raw.githubusercontent.com/google/fonts/7af0d90b4d532ffa4b041937b560c6df4e7b1e95/ofl/notosans/NotoSans%5Bwdth%2Cwght%5D.ttf",
+      "license": "SIL OFL 1.1"
+    },
+    {
+      "id": "noto-sans-italic",
+      "label": "Noto Sans Italic / Bold Italic",
+      "kind": "font",
+      "relativePath": "fonts/noto-sans/Italic.ttf",
+      "sha256": "58e6e0ebd1931b29a365aa2d3e2ee9a9e831a3af7cf3ad1462d4e72154f0b291",
+      "sourceUrl": "https://raw.githubusercontent.com/google/fonts/7af0d90b4d532ffa4b041937b560c6df4e7b1e95/ofl/notosans/NotoSans-Italic%5Bwdth%2Cwght%5D.ttf",
+      "license": "SIL OFL 1.1"
+    },
+    {
+      "id": "noto-serif-regular",
+      "label": "Noto Serif Regular / Bold",
+      "kind": "font",
+      "relativePath": "fonts/noto-serif/Regular.ttf",
+      "sha256": "4d8e6761424656867019081a1a01336f3cb086982682698714054fc33f782713",
+      "sourceUrl": "https://raw.githubusercontent.com/google/fonts/7af0d90b4d532ffa4b041937b560c6df4e7b1e95/ofl/notoserif/NotoSerif%5Bwdth%2Cwght%5D.ttf",
+      "license": "SIL OFL 1.1"
+    },
+    {
+      "id": "noto-serif-italic",
+      "label": "Noto Serif Italic / Bold Italic",
+      "kind": "font",
+      "relativePath": "fonts/noto-serif/Italic.ttf",
+      "sha256": "e87acbc6c0efd0d9a20d6a8cbbda2b266c14be3a3a6f5af8ec9d7b2460570ad1",
+      "sourceUrl": "https://raw.githubusercontent.com/google/fonts/7af0d90b4d532ffa4b041937b560c6df4e7b1e95/ofl/notoserif/NotoSerif-Italic%5Bwdth%2Cwght%5D.ttf",
+      "license": "SIL OFL 1.1"
+    },
+    {
+      "id": "noto-color-emoji",
+      "label": "Noto Color Emoji",
+      "kind": "font",
+      "relativePath": "fonts/noto-color-emoji/Regular.ttf",
+      "sha256": "4d82a18d8d95f60ba883ce242bbadbf84a576e987745dd7ba38d71c67cff2d73",
+      "sourceUrl": "https://raw.githubusercontent.com/google/fonts/7af0d90b4d532ffa4b041937b560c6df4e7b1e95/ofl/notocoloremoji/NotoColorEmoji-Regular.ttf",
+      "license": "SIL OFL 1.1"
+    },
+    {
+      "id": "ffmpeg",
+      "label": "FFmpeg",
+      "kind": "tool",
+      "relativePath": "media-tools/darwin-arm64/ffmpeg",
+      "sha256": "39b28d84262f7a24c608df610339fb1d4ffaed3b6329b0f9507f9b581ee34b19",
+      "sourceUrl": "https://ffmpeg.org/releases/ffmpeg-9.0.2.tar.xz",
+      "license": "LGPL-2.1-or-later"
+    },
+    {
+      "id": "ffprobe",
+      "label": "ffprobe",
+      "kind": "tool",
+      "relativePath": "media-tools/darwin-arm64/ffprobe",
+      "sha256": "20cce2b27d18c1a81c4fa5d414a9af351c4ad5a37dbe4560395a402e6f8a58c5",
+      "sourceUrl": "https://ffmpeg.org/releases/ffmpeg-9.0.2.tar.xz",
+      "license": "LGPL-2.1-or-later"
+    },
+    {
+      "id": "sans-license",
+      "label": "Noto Sans license",
+      "kind": "license",
+      "relativePath": "fonts/noto-sans/OFL.txt",
+      "sha256": "cee9892f9f0cc8fe882c9e9537ee6a89621d86ee7ceaf70b02e2b2b1c25c061a",
+      "sourceUrl": "https://raw.githubusercontent.com/google/fonts/7af0d90b4d532ffa4b041937b560c6df4e7b1e95/ofl/notosans/OFL.txt",
+      "license": "SIL OFL 1.1"
+    },
+    {
+      "id": "serif-license",
+      "label": "Noto Serif license",
+      "kind": "license",
+      "relativePath": "fonts/noto-serif/OFL.txt",
+      "sha256": "cee9892f9f0cc8fe882c9e9537ee6a89621d86ee7ceaf70b02e2b2b1c25c061a",
+      "sourceUrl": "https://raw.githubusercontent.com/google/fonts/7af0d90b4d532ffa4b041937b560c6df4e7b1e95/ofl/notoserif/OFL.txt",
+      "license": "SIL OFL 1.1"
+    },
+    {
+      "id": "emoji-license",
+      "label": "Noto Color Emoji license",
+      "kind": "license",
+      "relativePath": "fonts/noto-color-emoji/OFL.txt",
+      "sha256": "ac564676d10054a8445923dfc2dfb13c042d97888bd27c1b6ec6dfe89a9d8d62",
+      "sourceUrl": "https://raw.githubusercontent.com/google/fonts/7af0d90b4d532ffa4b041937b560c6df4e7b1e95/ofl/notocoloremoji/OFL.txt",
+      "license": "SIL OFL 1.1"
+    },
+    {
+      "id": "ffmpeg-license",
+      "label": "FFmpeg LGPL license",
+      "kind": "license",
+      "relativePath": "media-tools/darwin-arm64/COPYING.LGPLv2.1",
+      "sha256": "246041b6ecf9bc32d718a62c57877c78b5eb397b6467e74ed7ae2626ab189c30",
+      "sourceUrl": "https://raw.githubusercontent.com/FFmpeg/FFmpeg/946fcce07b6dcd0331c8cc609192aeff5e1924f8/COPYING.LGPLv2.1",
+      "license": "LGPL-2.1-or-later"
+    },
+    {
+      "id": "ffmpeg-license-overview",
+      "label": "FFmpeg licensing overview",
+      "kind": "license",
+      "relativePath": "media-tools/darwin-arm64/LICENSE.md",
+      "sha256": "2e1d16c72fd74e12063776371da757322f8b77589386532f4fd8634bde7de1af",
+      "sourceUrl": "https://raw.githubusercontent.com/FFmpeg/FFmpeg/946fcce07b6dcd0331c8cc609192aeff5e1924f8/LICENSE.md",
+      "license": "LGPL-2.1-or-later"
+    },
+    {
+      "id": "react-license",
+      "label": "React license",
+      "kind": "license",
+      "relativePath": "licenses/React.txt",
+      "sha256": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93",
+      "sourceUrl": "https://registry.npmjs.org/react/-/react-19.3.1.tgz",
+      "license": "MIT"
+    },
+    {
+      "id": "react-dom-license",
+      "label": "React DOM license",
+      "kind": "license",
+      "relativePath": "licenses/React-DOM.txt",
+      "sha256": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93",
+      "sourceUrl": "https://registry.npmjs.org/react-dom/-/react-dom-19.3.1.tgz",
+      "license": "MIT"
+    },
+    {
+      "id": "scheduler-license",
+      "label": "React Scheduler license",
+      "kind": "license",
+      "relativePath": "licenses/Scheduler.txt",
+      "sha256": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93",
+      "sourceUrl": "https://registry.npmjs.org/scheduler/-/scheduler-0.28.0.tgz",
+      "license": "MIT"
+    },
+    {
+      "id": "zod-license",
+      "label": "Zod license",
+      "kind": "license",
+      "relativePath": "licenses/Zod.txt",
+      "sha256": "3f1189b28e3866e0d979968d466b78f813f76827cfdca1fbb124cc0a5c8841f8",
+      "sourceUrl": "https://registry.npmjs.org/zod/-/zod-4.6.7.tgz",
+      "license": "MIT"
+    },
+    {
+      "id": "electron-license",
+      "label": "Electron license",
+      "kind": "license",
+      "relativePath": "licenses/Electron.txt",
+      "sha256": "5154e165bd6c2cc0cfbcd8916498c7abab0497923bafcd5cb07673fe8480087d",
+      "sourceUrl": "https://github.com/electron/electron/releases/download/v42.11.18/electron-v42.11.18-darwin-arm64.zip",
+      "license": "MIT"
+    },
+    {
+      "id": "chromium-license",
+      "label": "Chromium and runtime dependency notices",
+      "kind": "license",
+      "relativePath": "licenses/Chromium.html",
+      "sha256": "ca0a3f71df977796bf39a99472783c1ce9378bf4d8f4142a95048c3843980415",
+      "sourceUrl": "https://github.com/electron/electron/releases/download/v42.11.18/electron-v42.11.18-darwin-arm64.zip",
+      "license": "Multiple licenses; see the full bundled notices"
+    },
+    {
+      "id": "ffmpeg-source",
+      "label": "Corresponding FFmpeg source",
+      "kind": "source",
+      "relativePath": "media-tools/darwin-arm64/ffmpeg-9.0.2.tar.xz",
+      "sha256": "8c3850283eb25fa026482078a04051e0be17347b09ef81a0849bec15a96e002e",
+      "sourceUrl": "https://ffmpeg.org/releases/ffmpeg-9.0.2.tar.xz",
+      "license": "LGPL-2.1-or-later; individual source-file notices apply"
+    },
+    {
+      "id": "media-guardian",
+      "label": "Media worker guardian",
+      "kind": "tool",
+      "relativePath": "media-tools/darwin-arm64/media-guardian",
+      "sha256": "664f41c92f5f3067fc98e3ec08c460da4a3b9e6303d4e746b7ee2997727d8b72",
+      "sourceUrl": "file:///bundled/media-tools/darwin-arm64/media-guardian.c",
+      "license": "Project source (UNLICENSED)"
+    }
+  ]
+}
