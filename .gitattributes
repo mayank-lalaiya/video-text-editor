@@ -1,0 +1,2 @@
+# Preserve pinned resource hashes and formatter inputs byte-for-byte on every OS.
+* -text
