@@ -1,0 +1,47 @@
+.video-text {
+  position: absolute;
+  box-sizing: border-box;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  outline: none;
+  resize: none;
+  appearance: none;
+  background: transparent;
+  overflow: hidden;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  line-height: 1.2;
+  letter-spacing: 0;
+  font-synthesis: none;
+  font-variant-emoji: emoji;
+  text-size-adjust: none;
+  direction: ltr;
+  pointer-events: none;
+  caret-color: transparent;
+}
+.video-text.editing {
+  pointer-events: auto;
+  caret-color: currentColor;
+  cursor: text;
+}
+.video-text::selection {
+  background: #527bb1;
+}
+.text-measure-host {
+  position: fixed;
+  visibility: hidden;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  contain: layout;
+}
+html.overlay-document,
+.overlay-document body,
+.overlay-document #root {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  overflow: hidden;
+}
