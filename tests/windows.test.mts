@@ -51,6 +51,36 @@ const run = async (args: string[]) =>
     maxBuffer: 8 * 1024 * 1024,
   });
 
+async function waitForOverlay(directory: string): Promise<Buffer> {
+  for (let attempt = 0; attempt < 600; attempt++) {
+    for (const entry of await readdir(directory, { withFileTypes: true })) {
+      if (!entry.isDirectory() || !entry.name.startsWith('.video-text-editor-'))
+        continue;
+      try {
+        const png = await readFile(join(directory, entry.name, 'text.png'));
+        if (
+          png.length > 32 &&
+          png.subarray(-8, -4).toString('ascii') === 'IEND'
+        )
+          return png;
+      } catch (error) {
+        if (
+          !(
+            error instanceof Error &&
+            'code' in error &&
+            error.code === 'ENOENT'
+          )
+        )
+          throw error;
+      }
+    }
+    await new Promise((resolve) => setTimeout(resolve, 20));
+  }
+  throw new Error(
+    'The Windows export did not produce its full-resolution text overlay.',
+  );
+}
+
 windowsTest(
   'Windows portable package has x64 offline resources, corresponding source and shipping fuses',
   async () => {
@@ -106,7 +136,7 @@ windowsTest(
 windowsTest(
   'Windows packaged editor exports SDR H.264/HEVC and HLG/PQ Main10 offline, preserving text, timing, audio and restore',
   { timeout: 300000 },
-  async () => {
+  async (t) => {
     const directory = await mkdtemp(
       join(tmpdir(), 'video-editor Windows \u00e9 '),
     );
@@ -119,6 +149,7 @@ windowsTest(
       { name: 'PQ Main10', codec: 'libx265', hdr: 'smpte2084' },
     ] as const;
     const hashes = new Map<string, string>();
+    const whitePixels = new Map<string, number[]>();
     try {
       await mkdir(profile);
       await mkdir(destination);
@@ -139,7 +170,9 @@ windowsTest(
           '-f',
           'lavfi',
           '-i',
-          'testsrc2=s=320x180:r=25:d=2',
+          item.hdr
+            ? "nullsrc=s=1024x180:r=25:d=2,format=yuv420p10le,geq=lum='64+876*X/(W-1)':cb=512:cr=512"
+            : 'testsrc2=s=320x180:r=25:d=2',
           '-f',
           'lavfi',
           '-i',
@@ -153,7 +186,12 @@ windowsTest(
           '-bf',
           '0',
           ...(item.codec === 'libx265'
-            ? ['-x265-params', 'log-level=error', '-tag:v', 'hvc1']
+            ? [
+                '-x265-params',
+                item.hdr ? 'log-level=error:lossless=1' : 'log-level=error',
+                '-tag:v',
+                'hvc1',
+              ]
             : []),
           '-pix_fmt',
           item.hdr ? 'yuv420p10le' : 'yuv420p',
@@ -164,7 +202,7 @@ windowsTest(
           '-colorspace',
           item.hdr ? 'bt2020nc' : 'bt709',
           '-color_range',
-          'tv',
+          item.hdr === 'smpte2084' ? 'pc' : 'tv',
           '-c:a',
           'aac',
           '-ac',
@@ -205,10 +243,14 @@ windowsTest(
           await text.press('Control+Enter');
           await page
             .getByRole('spinbutton', { name: 'Font size', exact: true })
-            .fill('18');
+            .fill(item.hdr ? '48' : '18');
           await page
             .getByRole('spinbutton', { name: 'Font size', exact: true })
             .press('Tab');
+          if (item.hdr)
+            await page
+              .getByRole('button', { name: 'Bold', exact: true })
+              .click();
           for (const [label, value] of [
             ['X', '10'],
             ['Y', '3'],
@@ -240,7 +282,55 @@ windowsTest(
               .getByRole('button', { name: 'Pause video', exact: true })
               .click();
           }
-          await startCurrentExport(page, false);
+          const [, overlay] = await Promise.all([
+            startCurrentExport(page, false),
+            item.hdr ? waitForOverlay(destination) : Promise.resolve(null),
+          ]);
+          if (overlay) {
+            const indices = await page.evaluate(async (base64) => {
+              const image = new Image();
+              image.src = `data:image/png;base64,${base64}`;
+              await image.decode();
+              const canvas = document.createElement('canvas');
+              canvas.width = image.width;
+              canvas.height = image.height;
+              const context = canvas.getContext('2d');
+              if (!context)
+                throw new Error('The overlay pixel canvas is unavailable.');
+              context.drawImage(image, 0, 0);
+              const rgba = context.getImageData(
+                0,
+                0,
+                image.width,
+                image.height,
+              ).data;
+              const indices: number[] = [];
+              for (let y = 2; y < image.height - 2; y++)
+                for (let x = 2; x < image.width - 2; x++) {
+                  const pixel = (y * image.width + x) * 4;
+                  if (
+                    rgba[pixel]! < 254 ||
+                    rgba[pixel + 1]! < 254 ||
+                    rgba[pixel + 2]! < 254
+                  )
+                    continue;
+                  let interior = true;
+                  for (let dy = -2; dy <= 2; dy++)
+                    for (let dx = -2; dx <= 2; dx++)
+                      if (
+                        rgba[((y + dy) * image.width + x + dx) * 4 + 3]! < 254
+                      )
+                        interior = false;
+                  if (interior) indices.push(y * image.width + x);
+                }
+              return indices;
+            }, overlay.toString('base64'));
+            assert.ok(
+              indices.length > 50,
+              `${item.name}: opaque white glyph interiors required`,
+            );
+            whitePixels.set(item.name, indices);
+          }
           await finishCurrentExport(page, 60000);
         }
         await page.getByText('Saved Locally', { exact: true }).waitFor();
@@ -371,14 +461,90 @@ windowsTest(
         };
         const original = await pixels(source);
         const edited = await pixels(output);
+        const width = item.hdr ? 1024 : 320;
         let changed = 0;
-        for (let offset = 0; offset < 320 * 60 * 3; offset += 3)
+        for (let offset = 0; offset < width * 60 * 3; offset += 3)
           if (Math.abs(original[offset]! - edited[offset]!) > 30) changed++;
         assert.ok(
           changed > 30,
           `${item.name} must contain visible rendered text`,
         );
         assert.equal(await digest(source), hashes.get(source));
+        if (item.hdr) {
+          const decodeFrame = async (file: string) =>
+            execute(
+              ffmpeg,
+              [
+                '-nostdin',
+                '-v',
+                'error',
+                '-i',
+                file,
+                '-frames:v',
+                '1',
+                '-pix_fmt',
+                'yuv420p10le',
+                '-f',
+                'rawvideo',
+                'pipe:1',
+              ],
+              {
+                windowsHide: true,
+                encoding: 'buffer',
+                maxBuffer: 4 * 1024 * 1024,
+              },
+            );
+          const [originalFrame, decoded] = await Promise.all([
+            decodeFrame(source),
+            decodeFrame(output),
+          ]);
+          const levels = new Set<number>();
+          let nonTextError = 0;
+          for (let x = 0; x < width; x++) {
+            const offset = (150 * width + x) * 2;
+            const value = decoded.stdout.readUInt16LE(offset);
+            levels.add(value);
+            nonTextError += Math.abs(
+              value - originalFrame.stdout.readUInt16LE(offset),
+            );
+          }
+          nonTextError /= width;
+          assert.ok(
+            nonTextError < 2,
+            `${item.name}: non-text ten-bit error ${nonTextError}`,
+          );
+          assert.ok(
+            levels.size > 700,
+            `${item.name}: only ${levels.size} gradient levels`,
+          );
+          const indices = whitePixels.get(item.name);
+          assert.ok(indices && indices.length > 50);
+          const whiteCode =
+            item.hdr === 'smpte2084' ? 1023 * 0.580689 : 64 + 876 * 0.74988;
+          const whiteError =
+            indices.reduce(
+              (sum, index) =>
+                sum +
+                Math.abs(decoded.stdout.readUInt16LE(index * 2) - whiteCode),
+              0,
+            ) / indices.length;
+          assert.ok(
+            whiteError < 3,
+            `${item.name}: glyph-white error ${whiteError}`,
+          );
+          t.diagnostic(
+            JSON.stringify({
+              sample: item.name,
+              gradientLevels: levels.size,
+              nonTextError,
+              whiteSamples: indices.length,
+              whiteError,
+            }),
+          );
+        }
+        t.diagnostic(
+          `${item.name}: 50 displayed frames, unchanged timestamps/AAC/source; non-text PSNR ${psnr} dB.`,
+        );
       }
       assert.equal(
         (await readdir(destination)).filter((name) =>

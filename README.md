@@ -195,8 +195,9 @@ npm run test:desktop
 - On Windows, use `npm test` and `npm run test:windows` after a Windows build;
   the legacy `test:desktop` / `test:package` commands audit macOS specifically.
   Windows checks exercise the actual hardened portable app offline, CPU
-  H.264/HEVC SDR and HLG/PQ Main10 exports, frame timing, AAC packet copying,
-  text/emoji, Unicode/space-containing paths and workspace restoration.
+  H.264/HEVC SDR and HLG/PQ Main10 exports, dense ten-bit gradients and HDR
+  glyph-white accuracy, frame timing, AAC packet copying, text/emoji,
+  Unicode/space-containing paths, cancellation and workspace restoration.
 - The Windows workflow builds on `windows-2022`, then extracts the actual ZIP
   and repeats packaged checks on `windows-2025`. These are Windows Server CI
   runners, not evidence that Windows 10/11 client PCs or physical HDR displays

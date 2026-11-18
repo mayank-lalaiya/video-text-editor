@@ -14,6 +14,7 @@ import { pathToFileURL } from 'node:url';
 import { setTimeout as delay } from 'node:timers/promises';
 import { test } from 'node:test';
 import { mediaToolPath } from '../src/main/platform.ts';
+import { MediaWorker } from '../src/main/media/worker.ts';
 
 function alive(pid: number): boolean {
   try {
@@ -26,12 +27,57 @@ function alive(pid: number): boolean {
   }
 }
 
+test('ordinary cancellation reaps the child without deleting the live session posters', async (t) => {
+  const directory = await mkdtemp(
+    join(tmpdir(), 'video-editor-cancel \u00e9-'),
+  );
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  const session = join(directory, 'video-text-editor-session');
+  const output = join(directory, '.video-text-editor-cancel');
+  await Promise.all([mkdir(session), mkdir(output)]);
+  const poster = join(session, '00000000-0000-4000-8000-000000000001.png');
+  const partial = join(output, 'output.mp4');
+  await Promise.all([
+    writeFile(poster, 'live poster'),
+    writeFile(partial, 'partial'),
+  ]);
+  const controller = new AbortController();
+  const worker = new MediaWorker({
+    file: resolve('resources', mediaToolPath('media-guardian')),
+    cleanupDirectories: () => [session, output],
+  });
+  const job = worker.stream(
+    process.execPath,
+    [
+      '-e',
+      'process.stdout.write(String(process.pid));setInterval(()=>{},1000);',
+    ],
+    controller,
+  );
+  const completion = assert.rejects(job.done, /cancelled/);
+  const reader = job.body.getReader();
+  try {
+    const first = await reader.read();
+    const pid = Number(new TextDecoder().decode(first.value));
+    assert.ok(Number.isSafeInteger(pid) && pid > 0);
+    await reader.cancel();
+    await completion;
+    assert.equal(alive(pid), false);
+    assert.equal(await readFile(poster, 'utf8'), 'live poster');
+    assert.equal(await readFile(partial, 'utf8'), 'partial');
+  } finally {
+    controller.abort();
+    await completion;
+    reader.releaseLock();
+  }
+});
+
 test(
   'guardian reaps a SIGTERM-resistant worker after its parent dies and removes only owned temporary media',
   { timeout: 15000 },
   async () => {
     const directory = await mkdtemp(
-      join(tmpdir(), 'video-editor-guardian-test-'),
+      join(tmpdir(), 'video-editor-guardian test-\u00e9-'),
     );
     const temporary = join(directory, '.video-text-editor-abcdef');
     const original = join(directory, 'original.mp4');
