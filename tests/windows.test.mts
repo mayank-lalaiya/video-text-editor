@@ -210,6 +210,29 @@ windowsTest(
           '-shortest',
           path,
         ]);
+        const fixture = await probeVideo(
+          new MediaWorker(),
+          ffprobe,
+          path,
+          new AbortController().signal,
+        );
+        t.diagnostic(
+          JSON.stringify({
+            fixture: item.name,
+            video: fixture.streams.find(
+              (stream) => stream.codec_type === 'video',
+            ),
+          }),
+        );
+        const fixtureAsset = describeVideo(
+          fixture,
+          '00000000-0000-4000-8000-000000000001',
+          `${item.name}.mp4`,
+        );
+        assert.equal(
+          fixtureAsset.colour.dynamicRange,
+          item.hdr === 'arib-std-b67' ? 'hlg' : item.hdr ? 'pq' : 'sdr',
+        );
         hashes.set(path, await digest(path));
       }
       await withPackagedApp(application, profile, async (page) => {
