@@ -145,6 +145,9 @@ test('the actual HDR graph retains 10-bit gradients and blends sRGB text in floa
         dolbyVision: false,
       };
       const plan = exportPlan({ colour }, 0, 1000000, 'hevc');
+      const pixelFormat =
+        plan.encodingArgs[plan.encodingArgs.indexOf('-pix_fmt') + 1]!;
+      assert.ok(['p010le', 'yuv420p10le'].includes(pixelFormat));
       const output = execute([
         '-f',
         'rawvideo',
@@ -171,14 +174,16 @@ test('the actual HDR graph retains 10-bit gradients and blends sRGB text in floa
         '-frames:v',
         '1',
         '-pix_fmt',
-        'p010le',
+        pixelFormat,
         '-f',
         'rawvideo',
         'pipe:1',
       ]);
+      const sample = (offset: number) =>
+        output.readUInt16LE(offset) >> (pixelFormat === 'p010le' ? 6 : 0);
       const levels = new Set<number>();
       for (let x = 0; x < width; x += 1) {
-        const code = output.readUInt16LE(x * 2) >> 6;
+        const code = sample(x * 2);
         const original = yuv.readUInt16LE(x * 2);
         close(code, original, 1);
         levels.add(code);
@@ -192,7 +197,7 @@ test('the actual HDR graph retains 10-bit gradients and blends sRGB text in floa
           '-f',
           'rawvideo',
           '-pixel_format',
-          'p010le',
+          pixelFormat,
           '-video_size',
           `${width}x${height}`,
           '-i',
@@ -215,11 +220,7 @@ test('the actual HDR graph retains 10-bit gradients and blends sRGB text in floa
         );
       rgb(0, 24).forEach((value) => close(value, (203 * 128) / 255, 1.5));
       const whiteSignal = dynamicRange === 'hlg' ? 0.74988 : 0.580689;
-      close(
-        output.readUInt16LE((40 * width + 512) * 2) >> 6,
-        64 + 876 * whiteSignal,
-        1,
-      );
+      close(sample((40 * width + 512) * 2), 64 + 876 * whiteSignal, 1);
       rgb(512, 40).forEach((value) => close(value, 203, 2));
       // Independent Rec.709 -> Rec.2020 reference matrix applied to linear
       // sRGB orange (#FF8000), at the 203 cd/m² graphics-white level.

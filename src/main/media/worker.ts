@@ -33,7 +33,8 @@ export class MediaWorker {
           ...(guardian ? ['pipe' as const] : []),
         ],
         shell: false,
-        detached: !!guardian && process.platform !== 'win32',
+        // A Windows guardian must outlive libuv's kill-on-parent-exit Job Object.
+        detached: !!guardian,
         windowsHide: true,
       },
     );

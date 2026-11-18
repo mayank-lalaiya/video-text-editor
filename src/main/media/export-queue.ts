@@ -8,9 +8,10 @@ import {
   stat,
   statfs,
 } from 'node:fs/promises';
-import { join, parse } from 'node:path';
+import { join } from 'node:path';
 import type { MediaService } from './service.ts';
 import { exportCodec } from './colour.ts';
+import { outputFilename } from './publish.ts';
 import type { ExportRequest, ExportResult } from '../../shared/editor.ts';
 import type { Workspace } from '../../shared/workspace.ts';
 import {
@@ -302,25 +303,31 @@ export class ExportQueueService {
       if (job.status !== 'ready') continue;
       let suffix = 1;
       for (;;) {
-        const filename = `${parse(job.name).name}_edited${suffix === 1 ? '' : `_${suffix}`}.mp4`;
-        let exists = reserved.has(filename.toLocaleLowerCase('en-US'));
-        if (!exists && folder) {
-          try {
-            await stat(join(folder, filename));
-            exists = true;
-          } catch (error) {
-            if (
-              error instanceof Error &&
-              'code' in error &&
-              error.code === 'ENAMETOOLONG'
-            ) {
-              job.status = 'blocked';
-              job.error =
-                'Output filename is too long. Rename the original and locate it again, preserving its saved text.';
-              break;
+        let filename: string;
+        let exists: boolean;
+        try {
+          filename = outputFilename(job.name, suffix);
+          exists = reserved.has(filename.toLocaleLowerCase('en-US'));
+          if (!exists && folder) {
+            try {
+              await stat(join(folder, filename));
+              exists = true;
+            } catch (error) {
+              if (!missing(error)) throw error;
             }
-            if (!missing(error)) throw error;
           }
+        } catch (error) {
+          if (
+            error instanceof Error &&
+            'code' in error &&
+            error.code === 'ENAMETOOLONG'
+          ) {
+            job.status = 'blocked';
+            job.error =
+              'Output filename is too long. Rename the original and locate it again, preserving its saved text.';
+            break;
+          }
+          throw error;
         }
         if (!exists) {
           job.filename = filename;
