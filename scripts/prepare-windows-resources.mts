@@ -70,12 +70,21 @@ for (const name of ['ffmpeg', 'ffprobe', 'media-guardian'] as const) {
     encoding: 'utf8',
     maxBuffer: 8 * 1024 * 1024,
   });
-  if (
-    /DLL Name:.*(?:msys-|libwinpthread|libstdc\+\+|libgcc|libx26[45]|zlib|avcodec|avformat|avutil|swscale|swresample)/i.test(
-      dependencies,
-    )
-  )
-    throw new Error(`${name} requires an unbundled non-system DLL.`);
+  const imports = Array.from(
+    dependencies.matchAll(/DLL Name:\s*(\S+)/gi),
+    (match) => match[1]!,
+  );
+  if (!imports.length)
+    throw new Error(`${name} has no readable native DLL imports.`);
+  const unbundled = imports.filter((dependency) =>
+    /msys-|libwinpthread|libstdc\+\+|libgcc|libx26[45]|zlib|avcodec|avformat|avutil|swscale|swresample/i.test(
+      dependency,
+    ),
+  );
+  if (unbundled.length)
+    throw new Error(
+      `${name} requires unbundled non-system DLLs: ${unbundled.join(', ')}`,
+    );
   await add({
     id: name,
     label: name === 'media-guardian' ? 'Windows media worker guardian' : name,
